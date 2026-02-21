@@ -105,14 +105,25 @@
             "item15": "Pop-up/p15.png"
         };
 
-        // Klick-Event für die SVG-Elemente
+        // Klick-Event und Hover-Effekte für die SVG-Elemente
         document.querySelectorAll('.clickable').forEach(el => {
+            // Klick-Event
             el.addEventListener('click', function() {
                 const imagePath = popupData[this.id];
                 if (imagePath) {
                     popupImg.src = imagePath;
                     popup.style.display = 'flex';
                 }
+            });
+            
+            // Hover-Effekte per JavaScript (für bessere Browser-Kompatibilität)
+            el.addEventListener('mouseenter', function() {
+                this.style.filter = 'brightness(1.2) saturate(1.7) drop-shadow(0 60px 70px rgba(0,0,0,0.5))';
+                this.style.transition = 'filter 0.3s ease';
+            });
+            
+            el.addEventListener('mouseleave', function() {
+                this.style.filter = 'none';
             });
         });
 
