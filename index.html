@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive SVG - 15 Stationen</title>
+    <style>
+        /* --- STYLING --- */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; background: #000; }
+
+        /* Hintergrund-Wechsler */
+        #bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .slide { position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 5s ease-in-out; }
+        .slide.active { opacity: 1; }
+
+        /* SVG Ebene */
+        .svg-overlay { position: relative; z-index: 10; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; pointer-events: none; }
+        svg { width: 100%; height: auto; max-height: 100%; pointer-events: auto; }
+        
+        /* Interaktive Elemente im SVG */
+        .clickable { cursor: pointer; transition: filter 0.3s ease; }
+        .clickable:hover { filter: brightness(1.2) saturate(1.7) drop-shadow(0 60px 70px rgba(0,0,0,0.5)); }
+
+        /* Popup / Modal */
+        #popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .popup-box { background: #fff; padding: 15px; border-radius: 8px; position: relative; max-width: 90%; max-height: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #popup-img { max-width: 100%; max-height: 80vh; display: block; margin: 0 auto; border-radius: 4px; }
+        .close-btn { position: absolute; top: -45px; right: 0; color: #fff; font-size: 35px; cursor: pointer; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 10px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+    <div id="bg-container">
+        <div class="slide active" style="background-image: url('bg/bg1.png');"></div>
+        <div class="slide" style="background-image: url('bg/bg2.png');"></div>
+        <div class="slide" style="background-image: url('bg/bg3.png');"></div>
+        <div class="slide" style="background-image: url('bg/bg4.png');"></div>
+        <div class="slide" style="background-image: url('bg/bg5.png');"></div>
+    </div>
+
+    <div class="svg-overlay">
+        <svg viewBox="0 0 2880 1653.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <image id="item1" class="clickable" width="2703" height="6422" transform="translate(1164.67 250.38) scale(.17)" xlink:href="Images/img1.png"/>
+            <image id="item2" class="clickable" width="1093" height="985" transform="translate(1202.63 119.28) scale(.18)" xlink:href="Images/img2.png"/>
+            <image id="item3" class="clickable" width="1036" height="736" transform="translate(1354.07 151.17) scale(.19)" xlink:href="Images/img3.png"/>
+            <image id="item4" class="clickable" width="1807" height="1032" transform="translate(1192.43 396.94) scale(.18)" xlink:href="Images/img4.png"/>
+            <image id="item5" class="clickable" width="1788" height="1101" transform="translate(1190.43 903.59) scale(.18)" xlink:href="Images/img5.png"/>
+            <image id="item6" class="clickable" width="1960" height="1045" transform="translate(1191.77 663.01) scale(.16 .17)" xlink:href="Images/img6.png"/>
+            <image id="item7" class="clickable" width="956" height="780" transform="translate(1446.18 943.28) scale(.15)" xlink:href="Images/img7.png"/>
+            <image id="item8" class="clickable" width="1109" height="1666" transform="translate(1105.23 1163.06) scale(.2)" xlink:href="Images/img8.png"/>
+            <image id="item9" class="clickable" width="881" height="1085" transform="translate(1326.15 1150.54) scale(.16)" xlink:href="Images/img9.png"/>
+            <image id="item10" class="clickable" width="1174" height="1119" transform="translate(1451.43 1176.39) scale(.19)" xlink:href="Images/img10.png"/>
+            <image id="item11" class="clickable" width="821" height="4997" transform="translate(1092.99 364.3) scale(.17)" xlink:href="Images/img11.png"/>
+            <image id="item12" class="clickable" width="1072" height="1521" transform="translate(1446.18 568.52) scale(.14)" xlink:href="Images/img12.png"/>
+            <image id="item13" class="clickable" width="253" height="459" transform="translate(958.11 1200.85) scale(.53)" xlink:href="Images/img13.png"/>
+            <image id="item14" class="clickable" width="612" height="1152" transform="translate(1549.36 800.59) scale(.59)" xlink:href="Images/img14.png"/>
+            <image id="item15" class="clickable" width="2382" height="513" transform="translate(70.3 47.9) scale(.17)" xlink:href="Images/img15.png"/>
+        </svg>
+    </div>
+
+    <div id="popup">
+        <div class="popup-box">
+            <span class="close-btn" id="closePopup">&times;</span>
+            <img id="popup-img" src="" alt="Popup Bild">
+        </div>
+    </div>
+
+    <script>
+        // --- 1. HINTERGRUND LOGIK (Alle 30 Sekunden) ---
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        setInterval(() => {
+            const prevSlide = currentSlide;
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+            // Altes Bild erst nach der Transition ausblenden
+            setTimeout(() => {
+                slides[prevSlide].classList.remove('active');
+            }, 7000);
+        }, 30000);
+
+        // --- 2. POPUP LOGIK FÜR 15 BILDER ---
+        const popup = document.getElementById('popup');
+        const popupImg = document.getElementById('popup-img');
+        const closeBtn = document.getElementById('closePopup');
+
+        // Mapping für alle 15 Popups
+        // Ändere die Pfade (z.B. 'popup1.jpg') zu deinen echten Dateinamen
+        const popupData = {
+            "item1": "Pop-up/p1.png",
+            "item2": "Pop-up/p2.png",
+            "item3": "Pop-up/p3.png",
+            "item4": "Pop-up/p4.png",
+            "item5": "Pop-up/p5.png",
+            "item6": "Pop-up/p6.png",
+            "item7": "Pop-up/p7.png",
+            "item8": "Pop-up/p8.png",
+            "item9": "Pop-up/p9.png",
+            "item10": "Pop-up/p10.png",
+            "item11": "Pop-up/p11.png",
+            "item12": "Pop-up/p12.png",
+            "item13": "Pop-up/p13.png",
+            "item14": "Pop-up/p14.png",
+            "item15": "Pop-up/p15.png"
+        };
+
+        // Klick-Event für die SVG-Elemente
+        document.querySelectorAll('.clickable').forEach(el => {
+            el.addEventListener('click', function() {
+                const imagePath = popupData[this.id];
+                if (imagePath) {
+                    popupImg.src = imagePath;
+                    popup.style.display = 'flex';
+                }
+            });
+        });
+
+        // Schließen-Logik
+        closeBtn.onclick = () => popup.style.display = 'none';
+        window.onclick = (e) => { if (e.target == popup) popup.style.display = 'none'; };
+    </script>
+</body>
+</html>
